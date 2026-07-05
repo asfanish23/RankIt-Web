@@ -25,9 +25,25 @@ class SubmissionController extends Controller
             ->first();
 
         if ($existingSubmission) {
+            // Delete existing submission items to update the ballot
+            $existingSubmission->items()->delete();
+
+            $totalCandidates = count($request->rankings);
+            foreach ($request->rankings as $ranking) {
+                $points = ($totalCandidates + 1) - $ranking['position'];
+
+                RankingSubmissionItem::create([
+                    'ranking_submission_id' => $existingSubmission->id,
+                    'ranking_candidate_id' => $ranking['candidate_id'],
+                    'position' => $ranking['position'],
+                    'points' => $points,
+                ]);
+            }
+
             return response()->json([
-                'message' => 'You have already submitted a ranking for this topic.'
-            ], 409);
+                'message' => 'Ranking updated successfully',
+                'submission_id' => $existingSubmission->id
+            ], 200);
         }
 
         $totalCandidates = count($request->rankings);

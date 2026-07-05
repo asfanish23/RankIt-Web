@@ -25,8 +25,9 @@ Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('/topics', [TopicController::class, 'index']);
-
+Route::post('/topics', [TopicController::class, 'store']);
 Route::get('/topics/{id}', [TopicController::class, 'show']);
+Route::post('/topics/{id}/candidates', [TopicController::class, 'addCandidate']);
 
 Route::post('/submissions', [SubmissionController::class, 'store']);
 
