@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\RankingTopic;
 use App\Models\RankingCandidate;
+use App\Models\RankingSubmission;
 use Illuminate\Http\Request;
 
 class TopicController extends Controller
@@ -14,9 +15,30 @@ class TopicController extends Controller
         return RankingTopic::with('category')->get();
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        return RankingTopic::with('candidates')->findOrFail($id);
+        $topic = RankingTopic::with('candidates')->findOrFail($id);
+        $result = $topic->toArray();
+        $result['user_ranking'] = [];
+
+        if ($request->has('user_id')) {
+            $submission = RankingSubmission::where('topic_id', $id)
+                ->where('user_id', $request->user_id)
+                ->with('items')
+                ->first();
+
+            if ($submission) {
+                $result['user_ranking'] = $submission->items
+                    ->map(fn($item) => [
+                        'candidate_id' => $item->ranking_candidate_id,
+                        'position' => $item->position,
+                    ])
+                    ->values()
+                    ->toArray();
+            }
+        }
+
+        return $result;
     }
 
     public function store(Request $request)
