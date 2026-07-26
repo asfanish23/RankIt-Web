@@ -158,50 +158,68 @@ class RankingCandidateResource extends Resource
                                          ? new \Illuminate\Support\HtmlString('<div class="mt-2"><img src="' . e($get('image_url')) . '" class="w-full rounded-lg shadow-md" style="max-height: 180px; object-fit: cover;" /></div>') 
                                          : new \Illuminate\Support\HtmlString('<div class="mt-2 text-sm text-gray-500 italic">No image preview available</div>')),
  
-                                Forms\Components\FileUpload::make('temp_upload')
-                                    ->label('Or Upload Image')
-                                    ->image()
-                                    ->dehydrated(false)
-                                    ->saveUploadedFileUsing(function (Forms\Set $set, $file) {
-                                        $cloudName = env('CLOUDINARY_CLOUD_NAME');
-                                        $uploadPreset = env('CLOUDINARY_UPLOAD_PRESET');
-                                        
-                                        if (empty($cloudName) || empty($uploadPreset)) {
-                                            $imageUrl = asset('images/def.png');
-                                            $set('image_url', $imageUrl);
-                                            return 'cloudinary-fallback.jpg';
-                                        }
-                                        
-                                        try {
-                                            $ch = curl_init();
-                                            curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
-                                            curl_setopt($ch, CURLOPT_POST, true);
-                                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                                            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                                            
-                                            $postFields = [
-                                                'upload_preset' => $uploadPreset,
-                                                'file' => new \CURLFile($file->getRealPath(), $file->getMimeType(), $file->getClientOriginalName()),
-                                            ];
-                                            
-                                            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
-                                            $response = curl_exec($ch);
-                                            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                            curl_close($ch);
-                                            
-                                            if ($statusCode === 200) {
-                                                $resData = json_decode($response, true);
-                                                if (!empty($resData['secure_url'])) {
-                                                    $set('image_url', $resData['secure_url']);
-                                                    return $resData['secure_url'];
-                                                }
-                                            }
-                                        } catch (\Exception $e) {}
-                                        
-                                        $imageUrl = asset('images/def.png');
-                                        $set('image_url', $imageUrl);
-                                        return 'cloudinary-error.jpg';
-                                    }),
+                                 Forms\Components\FileUpload::make('temp_upload')
+                                     ->label('Or Upload Image')
+                                     ->image()
+                                     ->dehydrated(false)
+                                     ->reactive()
+                                     ->afterStateUpdated(function (Forms\Set $set, $state) {
+                                         if (empty($state)) return;
+                                         
+                                         $file = is_array($state) ? reset($state) : $state;
+                                         
+                                         if ($file instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                                             $realPath = $file->getRealPath();
+                                             $mimeType = $file->getMimeType();
+                                             $originalName = $file->getClientOriginalName();
+                                         } else if (is_string($file)) {
+                                             $realPath = \Illuminate\Support\Facades\Storage::disk('local')->path($file);
+                                             $mimeType = mime_content_type($realPath) ?: 'image/jpeg';
+                                             $originalName = basename($realPath);
+                                         } else {
+                                             return;
+                                         }
+
+                                         $cloudName = env('CLOUDINARY_CLOUD_NAME');
+                                         $uploadPreset = env('CLOUDINARY_UPLOAD_PRESET');
+                                         
+                                         if (empty($cloudName) || empty($uploadPreset)) {
+                                             return;
+                                         }
+                                         
+                                         try {
+                                             $ch = curl_init();
+                                             curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+                                             curl_setopt($ch, CURLOPT_POST, true);
+                                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                                             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                                             
+                                             $postFields = [
+                                                 'upload_preset' => $uploadPreset,
+                                                 'file' => new \CURLFile($realPath, $mimeType, $originalName),
+                                             ];
+                                             
+                                             curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+                                             $response = curl_exec($ch);
+                                             $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                             curl_close($ch);
+                                             
+                                             if ($statusCode === 200) {
+                                                 $resData = json_decode($response, true);
+                                                 if (!empty($resData['secure_url'])) {
+                                                     $set('image_url', $resData['secure_url']);
+                                                     
+                                                     \Filament\Notifications\Notification::make()
+                                                         ->title('Uploaded to Cloudinary successfully!')
+                                                         ->success()
+                                                         ->send();
+                                                 }
+                                             }
+                                         } catch (\Exception $e) {}
+                                     })
+                                     ->saveUploadedFileUsing(function ($file) {
+                                         return 'cloudinary-uploaded.jpg';
+                                     }),
                             ]),
                     ])->columns(3)
             ]);

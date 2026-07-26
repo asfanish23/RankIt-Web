@@ -138,14 +138,29 @@ class CandidatesRelationManager extends RelationManager
                             ->label('Or Upload Image')
                             ->image()
                             ->dehydrated(false)
-                            ->saveUploadedFileUsing(function (Forms\Set $set, $file) {
+                            ->reactive()
+                            ->afterStateUpdated(function (Forms\Set $set, $state) {
+                                if (empty($state)) return;
+                                
+                                $file = is_array($state) ? reset($state) : $state;
+                                
+                                if ($file instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                                    $realPath = $file->getRealPath();
+                                    $mimeType = $file->getMimeType();
+                                    $originalName = $file->getClientOriginalName();
+                                } else if (is_string($file)) {
+                                    $realPath = \Illuminate\Support\Facades\Storage::disk('local')->path($file);
+                                    $mimeType = mime_content_type($realPath) ?: 'image/jpeg';
+                                    $originalName = basename($realPath);
+                                } else {
+                                    return;
+                                }
+
                                 $cloudName = env('CLOUDINARY_CLOUD_NAME');
                                 $uploadPreset = env('CLOUDINARY_UPLOAD_PRESET');
                                 
                                 if (empty($cloudName) || empty($uploadPreset)) {
-                                    $imageUrl = asset('images/def.png');
-                                    $set('image_url', $imageUrl);
-                                    return 'cloudinary-fallback.jpg';
+                                    return;
                                 }
                                 
                                 try {
@@ -157,7 +172,7 @@ class CandidatesRelationManager extends RelationManager
                                     
                                     $postFields = [
                                         'upload_preset' => $uploadPreset,
-                                        'file' => new \CURLFile($file->getRealPath(), $file->getMimeType(), $file->getClientOriginalName()),
+                                        'file' => new \CURLFile($realPath, $mimeType, $originalName),
                                     ];
                                     
                                     curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
@@ -169,14 +184,17 @@ class CandidatesRelationManager extends RelationManager
                                         $resData = json_decode($response, true);
                                         if (!empty($resData['secure_url'])) {
                                             $set('image_url', $resData['secure_url']);
-                                            return $resData['secure_url'];
+                                            
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Uploaded to Cloudinary successfully!')
+                                                ->success()
+                                                ->send();
                                         }
                                     }
                                 } catch (\Exception $e) {}
-                                
-                                $imageUrl = asset('images/def.png');
-                                $set('image_url', $imageUrl);
-                                return 'cloudinary-error.jpg';
+                            })
+                            ->saveUploadedFileUsing(function ($file) {
+                                return 'cloudinary-uploaded.jpg';
                             }),
                     ])
             ]);
