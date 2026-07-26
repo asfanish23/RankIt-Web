@@ -12,7 +12,7 @@ class TopicController extends Controller
 {
     public function index()
     {
-        return RankingTopic::with('category')->get();
+        return RankingTopic::with('category')->withCount('candidates')->get();
     }
 
     public function show(Request $request, $id)
