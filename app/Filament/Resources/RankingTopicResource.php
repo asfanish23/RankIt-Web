@@ -19,32 +19,49 @@ class RankingTopicResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name')
-                    ->required(),
+                Forms\Components\Grid::make(3)
+                    ->schema([
+                        Forms\Components\Section::make('Topic Details')
+                            ->description('Configure the title and descriptions of this ranking topic.')
+                            ->icon('heroicon-o-document-text')
+                            ->columnSpan(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Topic Title')
+                                    ->placeholder('e.g., Best Anime of 2026, Top Pizza Toppings')
+                                    ->prefixIcon('heroicon-o-tag')
+                                    ->required()
+                                    ->maxLength(255),
 
-                Forms\Components\Select::make('created_by')
-                    ->relationship('creator', 'name')
-                    ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Description')
+                                    ->placeholder('Describe this ranking topic...')
+                                    ->rows(4),
+                            ]),
 
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
+                        Forms\Components\Section::make('Settings')
+                            ->description('Assign this topic to a category.')
+                            ->icon('heroicon-o-cog')
+                            ->columnSpan(1)
+                            ->schema([
+                                Forms\Components\Select::make('category_id')
+                                    ->relationship('category', 'name')
+                                    ->prefixIcon('heroicon-o-folder')
+                                    ->required(),
 
-                Forms\Components\Textarea::make('description')
-                    ->rows(4),
+                                Forms\Components\Hidden::make('created_by')
+                                    ->default(fn () => auth()->id()),
 
-                Forms\Components\Select::make('visibility')
-                    ->options([
-                        'public' => 'Public',
-                        'private' => 'Private',
-                    ])
-                    ->default('public')
-                    ->required(),
+                                Forms\Components\Hidden::make('visibility')
+                                    ->default('public'),
+                            ]),
+                    ])->columns(3)
             ]);
     }
 
@@ -59,12 +76,9 @@ class RankingTopicResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('creator.name'),
-
-                Tables\Columns\TextColumn::make('visibility'),
-
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime(),
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //
@@ -82,7 +96,7 @@ class RankingTopicResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CandidatesRelationManager::class,
         ];
     }
 

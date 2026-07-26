@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateRankingCandidate extends CreateRecord
 {
     protected static string $resource = RankingCandidateResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

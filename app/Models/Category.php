@@ -18,4 +18,9 @@ class Category extends Model
     {
         return $this->hasMany(RankingTopic::class);
     }
+
+    public function getImageUrlAttribute($value)
+    {
+        return $value ?: asset('images/def.png');
+    }
 }

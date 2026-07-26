@@ -10,24 +10,22 @@ class LeaderboardController extends Controller
 {
     public function show($topicId)
     {
-        $leaderboard = RankingSubmissionItem::select(
+        $leaderboard = \App\Models\RankingCandidate::select(
+                'ranking_candidates.id as candidate_id',
                 'ranking_candidates.name',
-                DB::raw('SUM(points) as total_points')
+                'ranking_candidates.description',
+                'ranking_candidates.image_url',
+                DB::raw('COALESCE(SUM(ranking_submission_items.points), 0) as total_points'),
+                DB::raw('COUNT(ranking_submission_items.id) as votes_count')
             )
-            ->join(
-                'ranking_candidates',
-                'ranking_submission_items.ranking_candidate_id',
-                '=',
-                'ranking_candidates.id'
+            ->leftJoin('ranking_submission_items', 'ranking_candidates.id', '=', 'ranking_submission_items.ranking_candidate_id')
+            ->where('ranking_candidates.topic_id', $topicId)
+            ->groupBy(
+                'ranking_candidates.id',
+                'ranking_candidates.name',
+                'ranking_candidates.description',
+                'ranking_candidates.image_url'
             )
-            ->join(
-                'ranking_submissions',
-                'ranking_submission_items.ranking_submission_id',
-                '=',
-                'ranking_submissions.id'
-            )
-            ->where('ranking_submissions.topic_id', $topicId)
-            ->groupBy('ranking_candidates.id', 'ranking_candidates.name')
             ->orderByDesc('total_points')
             ->get();
 

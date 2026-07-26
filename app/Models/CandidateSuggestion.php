@@ -5,14 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RankingCandidate extends Model
+class CandidateSuggestion extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'topic_id',
+        'user_id',
         'name',
         'description',
-        'image_url'
+        'status',
     ];
 
     public function topic()
@@ -20,16 +22,8 @@ class RankingCandidate extends Model
         return $this->belongsTo(RankingTopic::class, 'topic_id');
     }
 
-    public function submissionItems()
+    public function user()
     {
-        return $this->hasMany(
-            RankingSubmissionItem::class,
-            'ranking_candidate_id'
-        );
-    }
-
-    public function getImageUrlAttribute($value)
-    {
-        return $value ?: asset('images/def.png');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
