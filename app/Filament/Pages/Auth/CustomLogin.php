@@ -8,7 +8,7 @@ class CustomLogin extends BaseLogin
 {
     protected static string $view = 'filament.pages.auth.login';
     
-    protected ?string $layout = 'filament-panels::components.layout.base';
+    protected static string $layout = 'filament-panels::components.layout.base';
 
     protected function getEmailFormComponent(): \Filament\Forms\Components\Component
     {
