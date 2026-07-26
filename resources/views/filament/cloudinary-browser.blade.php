@@ -20,7 +20,8 @@
             api_key: '{{ $apiKey }}',
             timestamp: {{ $timestamp }},
             signature: '{{ $signature }}',
-            multiple: false,
+            multiple: false
+        }, {
             insertHandler: (data) => {
                 if (data.assets && data.assets.length > 0) {
                     let asset = data.assets[0];
