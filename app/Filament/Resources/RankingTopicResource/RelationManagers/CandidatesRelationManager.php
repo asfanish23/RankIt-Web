@@ -115,6 +115,11 @@ class CandidatesRelationManager extends RelationManager
                                             'signature' => $signature,
                                         ]);
                                     }),
+                                Forms\Components\Actions\Action::make('clearImage')
+                                    ->icon('heroicon-o-trash')
+                                    ->color('danger')
+                                    ->tooltip('Remove Photo')
+                                    ->action(fn (Forms\Set $set) => $set('image_url', null)),
                             ]),
 
                         Forms\Components\Placeholder::make('image_preview')
