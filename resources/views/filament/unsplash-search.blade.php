@@ -76,7 +76,7 @@
         this.loadingMore = false;
     },
     selectImage(url) {
-        $wire.set('data.image_url', url);
+        $wire.set('{{ $statePath }}', url);
         // Find the active Filament modal wrapper and click the close button
         let modal = this.$el.closest('.fi-modal');
         if (modal) {
@@ -89,7 +89,7 @@
             }
         }
     }
-}" x-init="search = $wire.get('data.name') || $wire.get('data.title') || ''; fetchImages();" class="p-2">
+}" x-init="search = '{{ e($name ?? '') }}'; fetchImages();" class="p-2">
     
     <!-- Search Bar -->
     <div class="flex items-center gap-2 mb-4">

@@ -120,7 +120,10 @@ class RankingCandidateResource extends Resource
                                              ->modalHeading('Search Unsplash')
                                              ->modalSubmitAction(false)
                                              ->modalCancelAction(false)
-                                             ->modalContent(view('filament.unsplash-search')),
+                                             ->modalContent(fn ($component) => view('filament.unsplash-search', [
+                                                 'statePath' => $component->getStatePath(),
+                                                 'name' => $component->getContainer()->getState()['name'] ?? '',
+                                             ])),
                                          Forms\Components\Actions\Action::make('browseCloudinary')
                                              ->icon('heroicon-o-folder-open')
                                              ->tooltip('Browse Cloudinary Media Library')
