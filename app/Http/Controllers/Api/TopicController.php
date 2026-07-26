@@ -7,6 +7,7 @@ use App\Models\RankingTopic;
 use App\Models\RankingCandidate;
 use App\Models\RankingSubmission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TopicController extends Controller
 {
