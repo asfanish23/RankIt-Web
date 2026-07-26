@@ -63,7 +63,7 @@ class RankingCandidateResource extends Resource
                                      ->afterStateUpdated(fn ($state) => $state)
                                      ->suffixActions([
                                          Forms\Components\Actions\Action::make('searchWikipedia')
-                                             ->icon('heroicon-m-magnifying-glass')
+                                             ->icon('heroicon-o-globe-alt')
                                              ->tooltip('Search Wikipedia for photo')
                                              ->action(function (Forms\Get $get, Forms\Set $set) {
                                                  $name = $get('name');
@@ -114,6 +114,13 @@ class RankingCandidateResource extends Resource
                                                          ->send();
                                                  }
                                              }),
+                                         Forms\Components\Actions\Action::make('searchUnsplash')
+                                             ->icon('heroicon-m-magnifying-glass')
+                                             ->tooltip('Search Unsplash for image')
+                                             ->modalHeading('Search Unsplash')
+                                             ->modalSubmitAction(false)
+                                             ->modalCancelAction(false)
+                                             ->modalContent(view('filament.unsplash-search')),
                                          Forms\Components\Actions\Action::make('browseCloudinary')
                                              ->icon('heroicon-o-folder-open')
                                              ->tooltip('Browse Cloudinary Media Library')
