@@ -125,7 +125,7 @@ class CategoryResource extends Resource
                                             ->modalHeading('Browse Cloudinary')
                                             ->modalSubmitAction(false)
                                             ->modalCancelAction(false)
-                                            ->modalContent(function () {
+                                            ->modalContent(function ($component) {
                                                 $timestamp = time();
                                                 $apiKey = env('CLOUDINARY_API_KEY');
                                                 $apiSecret = env('CLOUDINARY_API_SECRET');
@@ -133,6 +133,7 @@ class CategoryResource extends Resource
                                                 $signature = sha1("timestamp=" . $timestamp . $apiSecret);
                                                 
                                                 return view('filament.cloudinary-browser', [
+                                                    'statePath' => $component->getStatePath(),
                                                     'cloudName' => $cloudName,
                                                     'apiKey' => $apiKey,
                                                     'timestamp' => $timestamp,

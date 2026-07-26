@@ -130,20 +130,21 @@ class RankingCandidateResource extends Resource
                                              ->modalHeading('Browse Cloudinary')
                                              ->modalSubmitAction(false)
                                              ->modalCancelAction(false)
-                                             ->modalContent(function () {
-                                                 $timestamp = time();
-                                                 $apiKey = env('CLOUDINARY_API_KEY');
-                                                 $apiSecret = env('CLOUDINARY_API_SECRET');
-                                                 $cloudName = env('CLOUDINARY_CLOUD_NAME');
-                                                 $signature = sha1("timestamp=" . $timestamp . $apiSecret);
-                                                 
-                                                 return view('filament.cloudinary-browser', [
-                                                     'cloudName' => $cloudName,
-                                                     'apiKey' => $apiKey,
-                                                     'timestamp' => $timestamp,
-                                                     'signature' => $signature,
-                                                 ]);
-                                             }),
+                                             ->modalContent(function ($component) {
+                                                  $timestamp = time();
+                                                  $apiKey = env('CLOUDINARY_API_KEY');
+                                                  $apiSecret = env('CLOUDINARY_API_SECRET');
+                                                  $cloudName = env('CLOUDINARY_CLOUD_NAME');
+                                                  $signature = sha1("timestamp=" . $timestamp . $apiSecret);
+                                                  
+                                                  return view('filament.cloudinary-browser', [
+                                                      'statePath' => $component->getStatePath(),
+                                                      'cloudName' => $cloudName,
+                                                      'apiKey' => $apiKey,
+                                                      'timestamp' => $timestamp,
+                                                      'signature' => $signature,
+                                                  ]);
+                                              }),
                                      ]),
 
                                  Forms\Components\Placeholder::make('image_preview')

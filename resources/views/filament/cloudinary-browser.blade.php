@@ -24,7 +24,7 @@
             insertHandler: (data) => {
                 if (data.assets && data.assets.length > 0) {
                     let asset = data.assets[0];
-                    $wire.set('data.image_url', asset.secure_url);
+                    $wire.set('{{ $statePath }}', asset.secure_url);
                 }
                 // Traverses up to close the active Filament modal
                 let modal = this.$el.closest('.fi-modal');
