@@ -17,8 +17,29 @@ class TopicController extends Controller
 
     public function show(Request $request, $id)
     {
-        $topic = RankingTopic::with('candidates')->findOrFail($id);
+        $topic = RankingTopic::findOrFail($id);
+
+        $candidates = \App\Models\RankingCandidate::select(
+                'ranking_candidates.*',
+                DB::raw('COALESCE(SUM(ranking_submission_items.points), 0) as total_points'),
+                DB::raw('COUNT(ranking_submission_items.id) as votes_count')
+            )
+            ->leftJoin('ranking_submission_items', 'ranking_candidates.id', '=', 'ranking_submission_items.ranking_candidate_id')
+            ->where('ranking_candidates.topic_id', $id)
+            ->groupBy(
+                'ranking_candidates.id',
+                'ranking_candidates.topic_id',
+                'ranking_candidates.name',
+                'ranking_candidates.description',
+                'ranking_candidates.image_url',
+                'ranking_candidates.created_at',
+                'ranking_candidates.updated_at'
+            )
+            ->orderByDesc('total_points')
+            ->get();
+
         $result = $topic->toArray();
+        $result['candidates'] = $candidates->toArray();
         $result['user_ranking'] = [];
 
         if ($request->has('user_id')) {
