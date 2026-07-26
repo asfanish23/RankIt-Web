@@ -7,6 +7,8 @@ use Filament\Pages\Auth\Login as BaseLogin;
 class CustomLogin extends BaseLogin
 {
     protected static string $view = 'filament.pages.auth.login';
+    
+    protected ?string $layout = 'filament-panels::components.layout.base';
 
     protected function getEmailFormComponent(): \Filament\Forms\Components\Component
     {
