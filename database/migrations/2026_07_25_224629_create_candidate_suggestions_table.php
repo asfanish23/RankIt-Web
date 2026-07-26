@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('candidate_suggestions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('topic_id')->constrained('ranking_topics')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default('pending'); // pending, approved, rejected

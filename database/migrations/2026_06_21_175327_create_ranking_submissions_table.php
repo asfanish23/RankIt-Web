@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('ranking_submissions', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('user_id')
-                    ->constrained()
+                $table->string('user_id');
+                $table->foreign('user_id')
+                    ->references('id')->on('users')
                     ->cascadeOnDelete();
                 $table->foreignId('topic_id')
                     ->constrained('ranking_topics')

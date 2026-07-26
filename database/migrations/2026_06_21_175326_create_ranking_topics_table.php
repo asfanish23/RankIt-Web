@@ -18,8 +18,9 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('created_by')
-                ->constrained('users')
+            $table->string('created_by');
+            $table->foreign('created_by')
+                ->references('id')->on('users')
                 ->cascadeOnDelete();
 
             $table->string('title');

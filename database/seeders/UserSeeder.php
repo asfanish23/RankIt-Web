@@ -15,20 +15,21 @@ class UserSeeder extends Seeder
     {
         // Ensure a deterministic set of named demo users exists.
         $namedUsers = [
-            ['name' => 'John Doe', 'email' => 'john.doe@rankit.demo'],
-            ['name' => 'Alice Tan', 'email' => 'alice.tan@rankit.demo'],
-            ['name' => 'Ahmad Hakim', 'email' => 'ahmad.hakim@rankit.demo'],
-            ['name' => 'Nur Aisyah', 'email' => 'nur.aisyah@rankit.demo'],
-            ['name' => 'David Lee', 'email' => 'david.lee@rankit.demo'],
-            ['name' => 'Siti Nurhaliza', 'email' => 'siti.nurhaliza@rankit.demo'],
-            ['name' => 'Farid Azman', 'email' => 'farid.azman@rankit.demo'],
-            ['name' => 'Sarah Lim', 'email' => 'sarah.lim@rankit.demo'],
-            ['name' => 'Daniel Wong', 'email' => 'daniel.wong@rankit.demo'],
-            ['name' => 'Aina Sofea', 'email' => 'aina.sofea@rankit.demo'],
+            ['id' => 'demo_user_1', 'name' => 'John Doe', 'email' => 'john.doe@rankit.demo'],
+            ['id' => 'demo_user_2', 'name' => 'Alice Tan', 'email' => 'alice.tan@rankit.demo'],
+            ['id' => 'demo_user_3', 'name' => 'Ahmad Hakim', 'email' => 'ahmad.hakim@rankit.demo'],
+            ['id' => 'demo_user_4', 'name' => 'Nur Aisyah', 'email' => 'nur.aisyah@rankit.demo'],
+            ['id' => 'demo_user_5', 'name' => 'David Lee', 'email' => 'david.lee@rankit.demo'],
+            ['id' => 'demo_user_6', 'name' => 'Siti Nurhaliza', 'email' => 'siti.nurhaliza@rankit.demo'],
+            ['id' => 'demo_user_7', 'name' => 'Farid Azman', 'email' => 'farid.azman@rankit.demo'],
+            ['id' => 'demo_user_8', 'name' => 'Sarah Lim', 'email' => 'sarah.lim@rankit.demo'],
+            ['id' => 'demo_user_9', 'name' => 'Daniel Wong', 'email' => 'daniel.wong@rankit.demo'],
+            ['id' => 'demo_user_10', 'name' => 'Aina Sofea', 'email' => 'aina.sofea@rankit.demo'],
         ];
 
         foreach ($namedUsers as $user) {
             User::query()->create([
+                'id' => $user['id'],
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => Hash::make('password'),
